@@ -2,23 +2,12 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
+#include "bddlib.h"
 
 #define HASH_SIZE 24593
-struct BDD;
-struct bdd_node_s;
-struct hash_node_s;
-struct hash_table_s;
-enum BOOL_OP;
-union packed_op;
+#define _get_truth(X) (X.hi == 1)
+#define _is_sink(X) ((X).v == (X).bdd->terms)
 
-
-typedef struct BDD BDD;
-typedef struct bdd_node_s bdd_node;
-typedef struct hash_node_s hash_node;
-typedef struct hash_table_s hash_table;
-
-
-bool nodes_equal(bdd_node ,bdd_node );
 
 
 struct bdd_node_s {
@@ -86,13 +75,17 @@ int add_to_hashtable(bdd_node *node) {
 	}
 }
 
+bdd_node _add_to_bdd(BDD *bdd, bdd_node node) {
+	return bdd->I[add_to_bdd(bdd, node.v, node.lo, node.hi)];
+}
+
 int add_to_bdd(BDD *bdd, int v, int lo, int hi) {
 	
 	bdd_node temp = {.v = v, .lo = lo, .hi = hi, .bdd = bdd};
 	//int hash = bdd_hash(temp);
 	add_to_hashtable(&temp);
-	bdd->I[bdd->count++] = temp;
-	return bdd->count;
+	bdd->I[bdd->count] = temp;
+	return bdd->count++;
 }
 
 BDD *new_bdd(BDD **in, int terms ) {
@@ -150,27 +143,13 @@ bdd_node get_node(BDD *bdd, int node) {
 	return bdd->I[node];
 }
 
-//Each boolean op is represented by an integer that matches
-//its truth table. This allows construction of boolean expressions by
-//bitwise operations.
-enum BOOL_OP {
-	FALSE,
-	AND,
-	A_AND_NOT_B,
-	A,
-	NOT_A_AND_B,
-	B,
-	XOR,
-	OR,
-	NOR,
-	XNOR,
-	NOT_B,
-	A_OR_NOT_B,
-	NOT_A,
-	NOT_A_OR_B,
-	NAND,
-	TRUE
-};
+bdd_node get_hi(bdd_node node) {
+	return node.bdd->I[node.hi];
+}
+
+bdd_node get_lo(bdd_node node) {
+	return node.bdd->I[node.lo];
+}
 
 union packed_op {
 	struct {
@@ -245,12 +224,70 @@ int _BDD_A (BDD **res, BDD *a, BDD *b, int node_a, int node_b) {
 			return add_to_bdd(
 			*res,								//BDD
 			nb.v,								// .v
-			_BDD_A(res,a,b,node_a,na.lo),		//.lo
+			_BDD_A(res,a,b,node_a,nb.lo),		//.lo
 			_BDD_A(res,a,b,node_a,nb.hi)		//.hi
 		);
 	}
 }
 
-bdd_node meld (enum BOOL_OP op, bdd_node f, bdd_node g) {
-	
+int _meld (BDD *target, enum BOOL_OP op, bdd_node f, bdd_node g) {
+	if(_is_sink(f) && _is_sink(g)) {
+		return bdd_op(op, _get_truth(f), _get_truth(g));
+	}
+	if(f.v == g.v) {
+		return add_to_bdd(
+			target,
+			f.v,
+			_meld(
+				target,
+				op,
+				get_lo(f),
+				get_lo(g)
+			),
+			_meld(
+				target,
+				op,
+				get_hi(f),
+				get_hi(g)
+			)
+		);
+	} else if (f.v < g.v ){
+		return add_to_bdd(
+			target,
+			f.v,
+			_meld(
+				target,
+				op,
+				get_lo(f),
+				g
+			),
+			_meld(
+				target,
+				op,
+				get_hi(f),
+				g
+			)
+		);
+	} else {
+		return add_to_bdd(
+			target,
+			g.v,
+			_meld(
+				target,
+				op,
+				f,
+				get_lo(g)
+			),
+			_meld(
+				target,
+				op,
+				f,
+				get_hi(g)
+			)
+		);
+	}
+}
+
+int meld(BDD *target, enum BOOL_OP op, BDD *f, BDD *g) {
+	return _meld(target,op,get_node(f,f->count-1),get_node(g,g->count-1));
 }
