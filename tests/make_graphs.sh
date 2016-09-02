@@ -8,3 +8,4 @@ do
 done
 cd -
 echo "images created in Debug/images/"
+eog Debug/images/

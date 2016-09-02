@@ -58,8 +58,9 @@ BDD *new_bdd(BDD **bdd, int terms);
 int get_bdd_count(BDD *bdd);
 int print_bdd(BDD *bdd);
 int make_dot(BDD *bdd, char *path);
-
-
+int make_simple_dot(BDD *bdd, char *path);
+int make_dot_r(BDD *bdd, char *path);
+int KnuthR(BDD *dag, int root);
 
 int meld (BDD *target, enum BOOL_OP op, BDD *f, BDD *g);
 
