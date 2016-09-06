@@ -1,55 +1,51 @@
 #include <bdd.h>
 #include <stdio.h>
 #include <stdlib.h>
-
 bdd make_constraint();
+void satPrinter(char *varset, int size);
 
 int main(int argc, char *argv[]) {
-	bdd_init(100,1000);
+	bdd_init(10000,1000);
 	bdd_setvarnum(9 + 9);
 	bdd pf = make_constraint();
-	bdd v[] = { //edges
-		bdd_ithvar(9),
-		bdd_ithvar(10),
-		bdd_ithvar(11),
-		bdd_ithvar(12),
-		bdd_ithvar(13),
-		bdd_ithvar(14),
-		bdd_ithvar(15),
-		bdd_ithvar(16)
-	};
-	bdd nv[] = { //!edges
-		bdd_nithvar(9),
-		bdd_nithvar(10),
-		bdd_nithvar(11),
-		bdd_nithvar(12),
-		bdd_nithvar(13),
-		bdd_nithvar(14),
-		bdd_nithvar(15),
-		bdd_nithvar(16)
-	};
-//	bdd edge_constraints[8];
+	bddPair *pair = bdd_newpair();
+	for(int i = 0;i<9;i++)
+		bdd_setpair(pair,i,i+9);
+	bdd pf2 = bdd_replace(pf,pair);
+	pf = pf & bdd_nithvar(2);
+	pf = pf & bdd_nithvar(3);
+//	pf = pf & bdd_nithvar(4);
+	pf = pf & bdd_nithvar(5);
+	pf = pf & bdd_nithvar(6);
+	pf = pf & bdd_nithvar(7);
+	pf = pf & bdd_nithvar(8);
 	
-	bdd point = bdd_ithvar(8);
-	bdd notpoint = bdd_nithvar(8);
-	bdd point_function = point;
-	bdd_fnprintdot((char *)"f_of_point-start.dot",point_function);
-	//bdd e1 = bdd_apply(
-	for(int i = 0;i<8;i++) {
-		//edge_constraints[i] = bdd_apply(v[i],point,bddop_imp);
-		//point_function = bdd_apply(point_function,edge_constraints[i],bddop_or);
-	}
+	pf2 = pf2 & bdd_nithvar(10);
+	pf2 = pf2 & bdd_nithvar(11);
+	pf2 = pf2 & bdd_nithvar(12);
+	pf2 = pf2 & bdd_nithvar(13);
+	pf2 = pf2 & bdd_nithvar(15);
+	pf2 = pf2 & bdd_nithvar(16);
+	pf2 = pf2 & bdd_nithvar(17);
+	printf("Point1 solutions: \n");
+	bdd_allsat(pf,*satPrinter);
+	printf("Point2 solutions: \n");
+	bdd_allsat(pf2,*satPrinter);
 
-	bdd_fnprintdot((char *)"f_of_point-end.dot",point_function);
-	bdd_printall();
-	printf("pf has %d solutions\n",bdd_satcount(pf));
+	bdd_fnprintdot((char *)"point1.dot",pf);
+	bdd_fnprintdot((char *)"point2.dot",pf2);
+
+
 	bdd_done();
-
-
 	return 0;
 }
 
-
+void satPrinter(char *varset, int size) {
+	for(int v=0;v<size;v++) {
+		printf("%c",varset[v] < 0 ? 'X' : (char)('0' + varset[v]));
+	}
+	printf("\n");
+}
 
 bdd make_constraint() {
 	bdd np = (bdd_nithvar(0));			//point status
@@ -128,8 +124,18 @@ bdd make_constraint() {
 						  t24 | t25 | t26 | t27 | t28 );
 	f = f | limit;
 	//	bdd f = !p & !e1 & !e2 & !e3 & !e4 & !e5 & !e6 & !e7 & !e8;
-	bdd_fnprintdot((char *)"constraint.dot",f);
-	printf("Constraint has %d solutions\n",bdd_satcount(f & bddfalse));
+	//int notin[] = {9,10,11,12,13,14,15,16,17};
+	//bdd fixvars = bdd_makeset(notin,9);
+	//f = bdd_restrict(f,fixvars);
+
+
+
+//	bdd notin = bdd_nithvar(9) & bdd_nithvar(10) & bdd_nithvar(11) & bdd_nithvar(12) & bdd_nithvar(13) & bdd_nithvar(14) & bdd_nithvar(15) & bdd_nithvar(16) & bdd_nithvar(17);
+//	f = bdd_apply(f,notin,bddop_and);
+//	f = f;
+	//bdd_fnprintdot((char *)"constraint.dot",f);
+	//printf("Constraint has %d solutions\n",bdd_satcount(f & bddfalse));
+	//bdd_allsat(f, *satPrinter);
 	return f;
 }
 
