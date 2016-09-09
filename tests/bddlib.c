@@ -196,89 +196,16 @@ bool bdd_op(enum BOOL_OP op, bool a, bool b){
 	}
 }
 
-/*int _BDD_A (BDD **res, BDD *a, BDD *b, int node_a, int node_b) {
-	bdd_node *na = get_node(a,node_a);
-	bdd_node *nb = get_node(b,node_b);
-	//Here's where we get recursive, baby!
-	if(na.v == na.v) {
-		return add_to_bdd(
-			*res,								//BDD
-			na.v,								// .v
-			_BDD_A(res,a,b,na.lo,nb.lo),		//.lo
-			_BDD_A(res,a,b,na.hi,nb.hi)			//.hi
-		);
-	} else if (na.v < nb.v) {
-		return add_to_bdd(
-			*res,								//BDD
-			na.v,								// .v
-			_BDD_A(res,a,b,na.lo,node_b),		//.lo
-			_BDD_A(res,a,b,na.hi,node_b)		//.hi
-		);
-	} else { //na.v > nb.v
-			return add_to_bdd(
-			*res,								//BDD
-			nb.v,								// .v
-			_BDD_A(res,a,b,node_a,nb.lo),		//.lo
-			_BDD_A(res,a,b,node_a,nb.hi)		//.hi
-		);
-	}
-}*/
-
 int _meld (BDD *target, enum BOOL_OP op, bdd_node f, bdd_node g) {
 	if(_is_sink(f) && _is_sink(g)) {
 		return bdd_op(op, _get_truth(f), _get_truth(g));
 	}
 	if(f.v == g.v) {
-		return add_to_bdd(
-			target,
-			f.v,
-			_meld(
-				target,
-				op,
-				get_lo(f),
-				get_lo(g)
-			),
-			_meld(
-				target,
-				op,
-				get_hi(f),
-				get_hi(g)
-			)
-		);
+		return add_to_bdd(target,f.v,_meld(target,op,get_lo(f),get_lo(g)),_meld(target,op,get_hi(f),get_hi(g)));
 	} else if (f.v < g.v ){
-		return add_to_bdd(
-			target,
-			f.v,
-			_meld(
-				target,
-				op,
-				get_lo(f),
-				g
-			),
-			_meld(
-				target,
-				op,
-				get_hi(f),
-				g
-			)
-		);
+		return add_to_bdd(target,f.v,_meld(target,op,get_lo(f),g),_meld(target,op,get_hi(f),g));
 	} else {
-		return add_to_bdd(
-			target,
-			g.v,
-			_meld(
-				target,
-				op,
-				f,
-				get_lo(g)
-			),
-			_meld(
-				target,
-				op,
-				f,
-				get_hi(g)
-			)
-		);
+		return add_to_bdd(target,g.v,_meld(target,op,f,get_lo(g)),_meld(target,op,f,get_hi(g)));
 	}
 }
 
