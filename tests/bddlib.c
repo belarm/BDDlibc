@@ -48,10 +48,7 @@ uint bdd_hash(bdd_node node) {
 }
 
 int add_to_hashtable(bdd_node *node) {
-	//h_table->count++;
-	//hash_table *h_table = bdd->*unique;
 	uint hash_val = bdd_hash(*node);
-	//printf("Got hash value %d\n",hash_val);
 	hash_node *entry = malloc(sizeof(hash_node));
 	entry->node = node;
 	entry->next = NULL;
@@ -60,11 +57,9 @@ int add_to_hashtable(bdd_node *node) {
 		node->bdd->unique.count++;
 		return 1;
 	} else {
-		//printf("Collision!\n");
 		hash_node *in_table = node->bdd->unique.table[hash_val];
 		while(true) {
 			if(nodes_equal(*in_table->node,*node)) {
-				//printf("Found duplicate in bucket\n");
 				return -1;
 			}
 			if(in_table->next == NULL)
@@ -85,7 +80,6 @@ bdd_node _add_to_bdd(BDD *bdd, bdd_node node) {
 int add_to_bdd(BDD *bdd, int v, int lo, int hi) {
 	
 	bdd_node temp = {.v = v, .lo = lo, .hi = hi, .bdd = bdd, .aux = 0};
-	//int hash = bdd_hash(temp);
 	add_to_hashtable(&temp);
 	bdd->I[bdd->count] = temp;
 	return bdd->count++;
@@ -113,7 +107,6 @@ bool nodes_equal(bdd_node a, bdd_node b) {
 }
 
 int get_bdd_count(BDD *bdd){
-	//printf("Got BDD %p\n",bdd);
 	return bdd->count;
 }
 
@@ -217,11 +210,8 @@ int meld(BDD *target, enum BOOL_OP op, BDD *f, BDD *g) {
 int KnuthR(BDD *dag, int root) {
 	int next;
 	int counter = 0;
-	
-	/*printf("RUNNING ALGO R==========\n");*/
 	if(root < 2) 							//constant funnction
 		return root;
-//	bdd_node *i = dag->I;					//get a local copy of I
 	int s, r;
 	bdd_node *p, *q;
 	int pdx, qdx, avail;								//p's index in I
@@ -238,7 +228,6 @@ int KnuthR(BDD *dag, int root) {
 		dag->I[k].aux = 0;
 	}
 	dag->I[0].aux = dag->I[1].aux = dag->I[root].aux = ~0;
-	/*printf("INIT DONE\n");*/
 	//R1
 	s = root;
 	while(s != 0) {
@@ -258,61 +247,13 @@ int KnuthR(BDD *dag, int root) {
 		}
 	}
 	//End R1 Passes check 1
-	printf("HEAD[]:\n");
-	for(int k = 0; k<=dag->terms-1;k++) {
-		printf("\t%d: %d\n",k,head[k]);
-	}
-	printf("I[]:\n");
-	printf("\tv\tlo\thi\taux\n");
-	for(int k = 0 ; k <= root; k++) {
-		bdd_node temp = get_node(dag,k);
-		printf("%d\t%d\t%d\t%d\t%c%d\n",k,temp.v,temp.lo,temp.hi,temp.aux >= 0 ? ' ' : '~', temp.aux >= 0 ? temp.aux : -temp.aux - 1);
-	}
-	make_dot_r(dag,"algr-step.dot");
-	//R2
 	dag->I[0].aux = dag->I[1].aux = 0;
-//	int v = dag->terms - 1; //Vmax
-	
-	
-	
-	
-	for(int v = dag->terms-1;v >= rv; v--) {
-
-
-
-/*
-	printf("HEAD[]:\n");
-	for(int k = 0; k<=dag->terms;k++) {
-		printf("\t%d: %d\n",k,head[k]);
-	}
-	printf("I[]:\n");
-	printf("\tv\tlo\thi\taux\n");
-	for(int k = 0 ; k <= root; k++) {
-		bdd_node temp = get_node(dag,k);
-		printf("%d\t%d\t%d\t%d\t%c%d\n",k,temp.v,temp.lo,temp.hi,temp.aux >= 0 ? ' ' : '~', temp.aux >= 0 ? temp.aux : -temp.aux - 1);
-	}
-	make_dot_r(dag,"algr-step.dot");*/
-
-
-
-
-
-
-
-
-
-
-		//R3 - oh shit, dawg
-		//setup
-		//printf("========\tRunning R3 with v == %d\n",v);
+	for(int v = dag->terms;v >= rv; v--) {
 		p = get_node_ref(dag,~head[v],&pdx);
-		//printf("R3 entered, p = %d\n",pdx);
 		s = 0;
 		do {
-			//redundant = (p->hi == p->lo);
 			while(pdx != 0) {
 				next = ~p->aux;
-	//			printf("Doing node %d:\t %d ? %d : %d\n",pdx,p->v,p->lo,p->hi);
 				q = get_node_ref(dag,p->hi, &qdx);
 				if(q->lo < 0) // p.lo is dead
 					p->hi = ~q->lo;
@@ -323,7 +264,6 @@ int KnuthR(BDD *dag, int root) {
 					q = get_node_ref(dag,p->lo, &qdx);
 				}
 				if(p->lo == p->hi) { //hi and lo point to same node; safe because all nodes with .v > v have been reduced
-					//printf("%d == %d, reduce\n",qdx,p->hi);
 					p->lo = ~qdx;
 					p->hi = avail;
 					p->aux = 0;
@@ -335,25 +275,19 @@ int KnuthR(BDD *dag, int root) {
 				} else {
 					p->aux = dag->I[~q->aux].aux;
 					dag->I[~q->aux].aux = pdx;
-					//aux[pdx] = aux[~aux[qdx]];
-					//aux[~aux[qdx]] = pdx;
 				}
 				p = get_node_ref(dag,next,&pdx);
 			}
 			//R3 done?
 			//R4
-			//r = ~s;
-			//s = 0;
 			for (r=~s,s=0;r>0;r = ~p->aux) {
 				printf("Chasing node %d in preparation for R6\n",r);
-
 				q = get_node_ref(dag,~dag->I[r].aux,&qdx);
 				dag->I[r].aux = 0;
 				if(s == 0)
 					s = qdx;
 				else
 					p->aux = qdx;
-//					aux[pdx] = qdx;
 				p = q;
 				pdx = qdx;
 				while(p->aux > 0) {
@@ -368,7 +302,6 @@ int KnuthR(BDD *dag, int root) {
 				q = p;
 				qdx = pdx;
 				//R6
-				//printf("Maybe R6?\n");
 				while(pdx != 0) {
 					printf("Entering R6\n");
 					s = p->lo;
@@ -376,7 +309,6 @@ int KnuthR(BDD *dag, int root) {
 					//R7
 					do {
 						r = q->hi;
-						//bdd_node *temp = get_node_ref(dag,r,&r);
 						if(dag->I[r].aux >= 0) {
 							printf("=================R7 - NOT deleting node %d\n",qdx);
 							dag->I[r].aux = ~qdx;
@@ -399,7 +331,6 @@ int KnuthR(BDD *dag, int root) {
 			}
 		} while (pdx != 0);
 		//R9
-		
 	}
 	bdd_node rnode = get_node(dag,root);
 	if(rnode.lo < 0) {
@@ -407,127 +338,6 @@ int KnuthR(BDD *dag, int root) {
 	} else
 		return root;
 }
-/*
-void AlgorithmR(BDD *bdd, int root) {
-	//#define node(X) i[(X)]
-	bdd_node *i = bdd->I;
-	if(root <= 1)
-		return;
-	int head[bdd->terms - i[root].v];
-	for(int k = i[root].v+1;k<=bdd->terms-1;k++) {
-		head[k] = -1;
-	}
-	i[0].aux = i[1].aux = root = -1;
-	int s, p;
-	bdd_node *node;
-	s = root;
-//R1
-	while(s!=0) {
-		node = &i[p = s];
-		s = ~node->aux;
-		node->aux = node->v;
-		head[node->v] = ~p;
-		if(i[node->lo].aux >= 0) {
-			i[node->lo].aux = ~s;
-			s = node->lo;
-		}
-		if(i[node->hi].aux >= 0) {
-			i[node->hi].aux = ~s;
-			s = node->hi;
-		}
-	}
-//R2
-	i[0].aux = i[1].aux = 0;
-	int v = bdd->terms-1;
-	//while(v > i[root].v) {
-	for(int v = bdd->terms-1;v > i[root].v;v--) {
-		node = &i[p = ~head[v]];
-		s = 0;
-		while(p != 0) {
-//R3	
-			int p1 = ~node->aux;
-			int q, avail = 0;
-			bdd_node *nodeq;
-			nodeq = &i[q = node->hi];
-			if(nodeq->lo < 0)
-				node->hi = ~nodeq->lo;
-			nodeq = &i[q = node->lo];
-			if(nodeq->lo < 0)
-				node->lo = ~nodeq->lo;
-			nodeq = &i[q = node->lo];
-			if(q == node->hi) {
-				node->lo = ~q;
-				node->hi = avail;
-				node->aux = 0;
-				avail = p;
-			} else {
-				node->aux = i[~nodeq->aux].aux;
-				i[~nodeq->aux].aux = p;
-			}
-			p = p1;
-//R4
-			int r = ~s;
-			while(r>=0) {
-				q = ~i[r].aux;
-				i[r].aux = 0;
-				if(s == 0) {
-					s = q;
-				} else {
-					i[p].aux = q;
-				}
-				p = q;
-				while(i[p].aux > 0) {
-					p = i[p].aux;
-				}
-				r = ~i[p].aux;
-			}
-//R5		p and q are uncoupled from their nodes atm
-			while(p != q) {
-				p = s;
-				if(p != 0) {
-					q = p;
-//R6
-					s = i[p].lo;
-//R7
-					do{
-						r = i[q].hi;
-						if(i[r].aux >= 0) {
-							i[r].aux = ~q;
-						} else {
-							i[q].lo = i[r].aux;
-							i[q].hi = avail;
-							avail = q;
-						}
-						q = i[q].aux;
-					} while (q != 0 && i[q].lo == s);
-//R8
-					 do {
-						if(i[p].lo  >= 0) {
-							i[i[p].hi].aux = 0;
-						}
-						p = i[p].aux;
-					} while(p != q);
-				}
-			}
-		}
-	}
-	
-	
-	
-	
-	//#undef node
-}
-
-*/
-
-
-
-
-
-
-
-
-
 
 //-----------------------------Utility functions-------------------------
 
@@ -599,4 +409,3 @@ int make_simple_dot(BDD *bdd, char *path) {
 	fclose(out);
 	return bdd->count;
 }
-
