@@ -6,7 +6,7 @@
 
 #define HASH_SIZE 24593
 #define _get_truth(X) (X.hi == 1)
-#define _is_sink(X) ((X).v == (X).bdd->terms+1)
+#define _is_sink(X) ((X).v == (X).bdd->terms)
 
 
 
@@ -97,9 +97,10 @@ BDD *new_bdd(BDD **in, int terms ) {
 	ret->capacity = 1024;
 	ret->I = malloc(sizeof(bdd_node) * 1024);
 	ret->count = 0;
-	add_to_bdd(ret,terms+1,0,0); //False sink
-	add_to_bdd(ret,terms+1,1,1); //True sink
+	add_to_bdd(ret,terms,0,0); //False sink
+	add_to_bdd(ret,terms,1,1); //True sink
 	*in = ret;
+	printf("Created BDD with %d nodes\n",ret->count);
 	return *in;
 }
 
@@ -130,9 +131,9 @@ bdd_node get_node(BDD *bdd, int node) {
 }
 
 bdd_node *get_node_ref(BDD *bdd, int node, int *idx) {
-/*	printf("GETTING NODE\t%d\n",node);
-	printf("\t\t%d?%d:%d %c%d\n",bdd->I[node].v,bdd->I[node].lo,bdd->I[node].hi,bdd->I[node].aux >= 0 ? ' ' : '~', bdd->I[node].aux >= 0 ? bdd->I[node].aux : -bdd->I[node].aux - 1);
-	fflush(stdout);*/
+//	printf("GETTING NODE\t%d\n",node);
+//	printf("\t\t%d?%d:%d %c%d\n",bdd->I[node].v,bdd->I[node].lo,bdd->I[node].hi,bdd->I[node].aux >= 0 ? ' ' : '~', bdd->I[node].aux >= 0 ? bdd->I[node].aux : -bdd->I[node].aux - 1);
+//	fflush(stdout);
 	*idx = node;
 	return &bdd->I[node];
 }
@@ -225,13 +226,13 @@ int KnuthR(BDD *dag, int root) {
 	bdd_node *p, *q;
 	int pdx, qdx, avail;								//p's index in I
 	int rv = get_node(dag,root).v;
-	int head[dag->terms+1];				//access by [v-rv]
+	int head[dag->terms];				//access by [v-rv]
 	//int aux[root+1];							//one int per node between root and FALSE
 	//memset(aux,root+1,sizeof(bdd_node));
 	//bool redundant = false;
 	avail = root << 4;
 	
-	for(int k = 1; k <= dag->terms - rv + 1; k++)
+	for(int k = 1; k <= dag->terms - rv; k++)
 		head[k] = ~0;
 	for(int k = 2; k < root;k++) {
 		dag->I[k].aux = 0;
@@ -241,9 +242,9 @@ int KnuthR(BDD *dag, int root) {
 	//R1
 	s = root;
 	while(s != 0) {
-		//printf("Getting node %d:\t",s);
+		printf("Getting node %d:\t",s);
 		p = get_node_ref(dag,s,&pdx);
-		//printf("\tGot node: %d?%d:%d\n",p.v,p.lo,p.hi);
+		printf("\tGot node: %d?%d:%d\n",p->v,p->lo,p->hi);
 		s = ~p->aux;
 		p->aux = head[p->v];
 		head[p->v] = ~pdx;
@@ -257,8 +258,8 @@ int KnuthR(BDD *dag, int root) {
 		}
 	}
 	//End R1 Passes check 1
-/*	printf("HEAD[]:\n");
-	for(int k = 0; k<=dag->terms;k++) {
+	printf("HEAD[]:\n");
+	for(int k = 0; k<=dag->terms-1;k++) {
 		printf("\t%d: %d\n",k,head[k]);
 	}
 	printf("I[]:\n");
@@ -267,7 +268,7 @@ int KnuthR(BDD *dag, int root) {
 		bdd_node temp = get_node(dag,k);
 		printf("%d\t%d\t%d\t%d\t%c%d\n",k,temp.v,temp.lo,temp.hi,temp.aux >= 0 ? ' ' : '~', temp.aux >= 0 ? temp.aux : -temp.aux - 1);
 	}
-	make_dot_r(dag,"algr-step.dot");*/
+	make_dot_r(dag,"algr-step.dot");
 	//R2
 	dag->I[0].aux = dag->I[1].aux = 0;
 //	int v = dag->terms - 1; //Vmax
@@ -275,7 +276,7 @@ int KnuthR(BDD *dag, int root) {
 	
 	
 	
-	for(int v = dag->terms;v >= rv; v--) {
+	for(int v = dag->terms-1;v >= rv; v--) {
 
 
 
@@ -343,8 +344,8 @@ int KnuthR(BDD *dag, int root) {
 			//R4
 			//r = ~s;
 			//s = 0;
-			for (r=~s,s=0;r>=0;r = ~p->aux) {
-				//printf("Chasing node %d in preparation for R6\n",r);
+			for (r=~s,s=0;r>0;r = ~p->aux) {
+				printf("Chasing node %d in preparation for R6\n",r);
 
 				q = get_node_ref(dag,~dag->I[r].aux,&qdx);
 				dag->I[r].aux = 0;
@@ -361,7 +362,7 @@ int KnuthR(BDD *dag, int root) {
 				r = ~p->aux;
 			}
 			//R5
-			//printf("Getting node %d in preparation for R6\n",s);
+			printf("Getting node %d in preparation for R6\n",s);
 			p = get_node_ref(dag,s,&pdx);
 			if(pdx != 0) {
 				q = p;
@@ -369,7 +370,7 @@ int KnuthR(BDD *dag, int root) {
 				//R6
 				//printf("Maybe R6?\n");
 				while(pdx != 0) {
-					//printf("Entering R6\n");
+					printf("Entering R6\n");
 					s = p->lo;
 					//Remove duplicates. Apparently.
 					//R7
@@ -377,10 +378,10 @@ int KnuthR(BDD *dag, int root) {
 						r = q->hi;
 						//bdd_node *temp = get_node_ref(dag,r,&r);
 						if(dag->I[r].aux >= 0) {
-							//printf("=================R7 - NOT deleting node %d\n",qdx);
+							printf("=================R7 - NOT deleting node %d\n",qdx);
 							dag->I[r].aux = ~qdx;
 						} else {
-							//printf("=================R7 - deleting node %d\n",qdx);
+							printf("=================R7 - deleting node %d\n",qdx);
 							q->lo = dag->I[r].aux;
 							q->hi = avail;
 							avail = qdx;

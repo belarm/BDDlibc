@@ -116,7 +116,7 @@ int main(int argc, char **argv)
 	add_to_bdd(point,1,17,16);
 	add_to_bdd(point,1,18,17);
 	add_to_bdd(point,0,20,19);
-	
+	printf("Point has %d nodes\n",get_bdd_count(point));
 	
 	
 	
@@ -148,8 +148,12 @@ int main(int argc, char **argv)
 	add_to_bdd(fig2,2,3,2);
 	add_to_bdd(fig2,2,5,4);
 	add_to_bdd(fig2,1,7,6);
-	make_simple_dot(point,"point-unreduced.dot");
-	KnuthR(point,6);
+	make_dot(point,"point-unreduced.dot");
+	printf("Reducing point\n");
+	fflush(stdout);
+	KnuthR(point,21);
+	printf("Done\n");
+	fflush(stdout);
 	make_simple_dot(point,"point-reduced.dot");
 	make_dot(voxel,"voxel.dot");
 	make_dot(voxel2,"voxel2.dot");
