@@ -9,7 +9,7 @@
 #include "bddlib.h"
 
 struct bdd_node_pointers_s;
-typedef struct bdd_node_pointers_s bddp;
+typedef struct bdd_node_pointers_s bddp_node;
 
 struct bddp_hash_entry;
 

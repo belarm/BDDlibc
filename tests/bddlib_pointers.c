@@ -7,7 +7,6 @@
 
 
 
-
 /*
 Operators needed: == < > ...
 
@@ -44,3 +43,35 @@ struct BDDP {
 	struct bdd_node_pointers_s *I;
 };
 
+uint bddb_hash(bddp_node node) {
+	int ret = 1;
+	ret = ret * 31 + node.v;
+	ret = ret * 31 + (unsigned long)node.hi;
+	return (ret * 31 + (unsigned long)node.lo) % HASH_SIZE;
+}
+
+int add_to_hashtable_p(bddp_node *node) {
+	uint hash_val = bddp_hash(*node);
+	hash_node *entry = malloc(sizeof(hash_node));
+	entry->node = node;
+	entry->next = NULL;
+	if(!node->bdd->unique.table[hash_val]) {
+		node->bdd->unique.table[hash_val] = entry;
+		node->bdd->unique.count++;
+		return 1;
+	} else {
+		hash_node *in_table = node->bdd->unique.table[hash_val];
+		while(true) {
+			if(nodes_equal(*in_table->node,*node)) {
+				return -1;
+			}
+			if(in_table->next == NULL)
+				break;
+			in_table = in_table->next;
+		}
+		printf("No dupe found, adding to bucket\n");
+		in_table->next = entry;
+		node->bdd->unique.count++;
+		return 1;
+	}
+}
