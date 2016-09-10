@@ -96,6 +96,8 @@
     <File Name="main.c"/>
     <File Name="bddlib.h"/>
     <File Name="bddlib.c"/>
+    <File Name="bddlib_pointers.c"/>
+    <File Name="bddlib_pointers.h"/>
   </VirtualDirectory>
   <Dependencies Name="Debug"/>
   <Dependencies Name="Release"/>

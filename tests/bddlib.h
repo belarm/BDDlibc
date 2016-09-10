@@ -1,9 +1,10 @@
+#ifndef _BDD_HEADER
+#define _BDD_HEADER
+
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>
 
-#ifndef _BDD_HEADER
-#define _BDD_HEADER
 
 
 

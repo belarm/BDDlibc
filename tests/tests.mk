@@ -5,7 +5,7 @@
 ## Debug
 ProjectName            :=tests
 ConfigurationName      :=Debug
-WorkspacePath          :=/home/belarm/Documents/BDDlibc
+WorkspacePath          :=/home/belarm/Documents/bddlibc
 ProjectPath            :=/home/belarm/source/bddlibc/tests
 IntermediateDirectory  :=./Debug
 OutDir                 := $(IntermediateDirectory)
@@ -13,14 +13,14 @@ CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=belarm
-Date                   :=09/09/16
+Date                   :=09/10/16
 CodeLitePath           :=/home/belarm/.codelite
-LinkerName             :=/usr/bin/g++
-SharedObjectLinkerName :=/usr/bin/g++ -shared -fPIC
+LinkerName             :=g++
+SharedObjectLinkerName :=g++ -shared -fPIC
 ObjectSuffix           :=.o
 DependSuffix           :=.o.d
-PreprocessSuffix       :=.i
-DebugSwitch            :=-g 
+PreprocessSuffix       :=.o.i
+DebugSwitch            :=-gstab
 IncludeSwitch          :=-I
 LibrarySwitch          :=-l
 OutputSwitch           :=-o 
@@ -31,7 +31,7 @@ OutputFile             :=$(IntermediateDirectory)/$(ProjectName)
 Preprocessors          :=
 ObjectSwitch           :=-o 
 ArchiveOutputSwitch    := 
-PreprocessOnlySwitch   :=-E
+PreprocessOnlySwitch   :=-E 
 ObjectsFileList        :="tests.txt"
 PCHCompileFlags        :=
 MakeDirCommand         :=mkdir -p
@@ -47,20 +47,20 @@ LibPath                := $(LibraryPathSwitch).
 ## Common variables
 ## AR, CXX, CC, AS, CXXFLAGS and CFLAGS can be overriden using an environment variables
 ##
-AR       := /usr/bin/ar rcu
-CXX      := /usr/bin/g++
-CC       := /usr/bin/gcc
+AR       := ar rcus
+CXX      := g++
+CC       := gcc
 CXXFLAGS :=  -g -O0 -Wall $(Preprocessors)
 CFLAGS   :=  -g -O0 -Wall $(Preprocessors)
 ASFLAGS  := 
-AS       := /usr/bin/as
+AS       := as
 
 
 ##
 ## User defined environment variables
 ##
 CodeLiteDir:=/usr/share/codelite
-Objects0=$(IntermediateDirectory)/main.c$(ObjectSuffix) $(IntermediateDirectory)/bddlib.c$(ObjectSuffix) 
+Objects0=$(IntermediateDirectory)/main.c$(ObjectSuffix) $(IntermediateDirectory)/bddlib.c$(ObjectSuffix) $(IntermediateDirectory)/bddlib_pointers.c$(ObjectSuffix) 
 
 
 
@@ -106,6 +106,14 @@ $(IntermediateDirectory)/bddlib.c$(DependSuffix): bddlib.c
 
 $(IntermediateDirectory)/bddlib.c$(PreprocessSuffix): bddlib.c
 	$(CC) $(CFLAGS) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/bddlib.c$(PreprocessSuffix)bddlib.c
+
+$(IntermediateDirectory)/bddlib_pointers.c$(ObjectSuffix): bddlib_pointers.c $(IntermediateDirectory)/bddlib_pointers.c$(DependSuffix)
+	$(CC) $(SourceSwitch) "/home/belarm/source/bddlibc/tests/bddlib_pointers.c" $(CFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/bddlib_pointers.c$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/bddlib_pointers.c$(DependSuffix): bddlib_pointers.c
+	@$(CC) $(CFLAGS) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/bddlib_pointers.c$(ObjectSuffix) -MF$(IntermediateDirectory)/bddlib_pointers.c$(DependSuffix) -MM bddlib_pointers.c
+
+$(IntermediateDirectory)/bddlib_pointers.c$(PreprocessSuffix): bddlib_pointers.c
+	$(CC) $(CFLAGS) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/bddlib_pointers.c$(PreprocessSuffix)bddlib_pointers.c
 
 
 -include $(IntermediateDirectory)/*$(DependSuffix)

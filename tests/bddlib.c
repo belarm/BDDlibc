@@ -9,7 +9,6 @@
 #define _is_sink(X) ((X).v == (X).bdd->terms)
 
 
-
 struct bdd_node_s {
 	int v;
 	int lo;
@@ -36,9 +35,7 @@ struct BDD {
 	struct bdd_node_s *I;
 };
 
-bdd_node get_node(BDD *bdd, int node);
-
-
+//bdd_node get_node(BDD *bdd, int node);
 
 uint bdd_hash(bdd_node node) {
 	int ret = 1;
@@ -73,6 +70,10 @@ int add_to_hashtable(bdd_node *node) {
 	}
 }
 
+hash_node *get_new_hashtable() {
+	return (hash_node *)malloc(sizeof(hash_node) * HASH_SIZE);
+}
+
 bdd_node _add_to_bdd(BDD *bdd, bdd_node node) {
 	return bdd->I[add_to_bdd(bdd, node.v, node.lo, node.hi)];
 }
@@ -96,10 +97,6 @@ BDD *new_bdd(BDD **in, int terms ) {
 	*in = ret;
 	printf("Created BDD with %d nodes\n",ret->count);
 	return *in;
-}
-
-hash_node *get_new_hashtable() {
-	return (hash_node *)malloc(sizeof(hash_node) * HASH_SIZE);
 }
 
 bool nodes_equal(bdd_node a, bdd_node b) {
@@ -209,7 +206,7 @@ int meld(BDD *target, enum BOOL_OP op, BDD *f, BDD *g) {
 
 int KnuthR(BDD *dag, int root) {
 	int next;
-	int counter = 0;
+	//~ int counter = 0;
 	if(root < 2) 							//constant funnction
 		return root;
 	int s, r;
@@ -248,7 +245,7 @@ int KnuthR(BDD *dag, int root) {
 	}
 	//End R1 Passes check 1
 	dag->I[0].aux = dag->I[1].aux = 0;
-	for(int v = dag->terms;v >= rv; v--) {
+	for(int v = dag->terms;v > rv; v--) {
 		p = get_node_ref(dag,~head[v],&pdx);
 		s = 0;
 		do {
