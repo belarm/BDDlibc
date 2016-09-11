@@ -98,6 +98,8 @@
     <File Name="bddlib.c"/>
     <File Name="bddlib_pointers.c"/>
     <File Name="bddlib_pointers.h"/>
+    <File Name="bdd2.h"/>
+    <File Name="bdd2.c"/>
   </VirtualDirectory>
   <Dependencies Name="Debug"/>
   <Dependencies Name="Release"/>

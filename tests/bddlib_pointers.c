@@ -25,25 +25,25 @@ struct bdd_node_pointers_s {
 };
 
 
-struct bddp_hash_entry {
+struct bddp_hash_entry_s {
 	struct bdd_node_pointers_s *node;
-	struct bddp_hash_entry *next;
+	struct bddp_hash_entry_s *next;
 };
 
-struct bddp_hash_table {
+struct bddp_hash_table_s {
 	int count;
-	struct bddp_hash_entry *table[HASH_SIZE];
+	struct bddp_hash_entry_s *table[HASH_SIZE];
 };
 
 struct BDDP {
 	int count;
 	int terms;
 	int capacity;
-	struct bddp_hash_table unique;
+	struct bddp_hash_table_s unique;
 	struct bdd_node_pointers_s *I;
 };
 
-uint bddb_hash(bddp_node node) {
+unsigned long bddb_hash(bddp_node node) {
 	int ret = 1;
 	ret = ret * 31 + node.v;
 	ret = ret * 31 + (unsigned long)node.hi;

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "bddlib.h"
-
+//#include "bddlib.h"
+#include "bdd2.h"
 #define _GRAPH_WIDTH 3
 #define _GRAPH_HEIGHT 3
 //4xy - 3x - 3y + 2 edges in an 8-connected grid graph x [X] y
@@ -54,23 +54,23 @@ int main(int argc, char **argv)
 	printf("Ready for %d edges\n",_EDGES);
 	
 	
-	BDD *point;
-	BDD *voxel;
-	BDD *voxel2;
-	BDD *vmerge;
-	BDD *bdd;
-	BDD *bdd2;
-	BDD *bdd3;
-	BDD *Or;
-	BDD *Nand;
-	BDD *Result;
-	BDD *fig2;
-	//BDD 
+	bdd *point;
+	bdd *voxel;
+	bdd *voxel2;
+	bdd *vmerge;
+	/*bdd *bdd;*/
+	bdd *bdd2;
+	bdd *bdd3;
+	bdd *Or;
+	bdd *Nand;
+	bdd *Result;
+	bdd *fig2;
+	//bdd 
 	new_bdd(&point,8);
 	new_bdd(&voxel,8);
 	new_bdd(&voxel2,8);
 	new_bdd(&vmerge,8);
-	new_bdd(&bdd,4);
+	/*new_bdd(&bdd,4);*/
 	new_bdd(&bdd2,4);
 	new_bdd(&bdd3,4);
 	new_bdd(&Or,2);
@@ -129,11 +129,11 @@ int main(int argc, char **argv)
 	add_to_bdd(Nand,0,1,2);
 	//add_to_bdd(bdd,1,0,1);
 	//add_to_bdd(bdd,2,2,1);
-	add_to_bdd(bdd,3,0,1);
+	/*add_to_bdd(bdd,3,0,1);
 	add_to_bdd(bdd,2,2,1);
 	add_to_bdd(bdd,1,0,3);
 	add_to_bdd(bdd,0,4,3);
-	
+	*/
 	add_to_bdd(bdd2,3,0,1);
 	add_to_bdd(bdd2,3,1,0);
 	add_to_bdd(bdd2,2,2,3);
