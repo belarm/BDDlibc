@@ -94,10 +94,10 @@
   </Settings>
   <VirtualDirectory Name="src">
     <File Name="main.c"/>
-    <File Name="bddlib.h"/>
-    <File Name="bddlib.c"/>
-    <File Name="bddlib_pointers.c"/>
-    <File Name="bddlib_pointers.h"/>
+    <File Name="bddlib.h" ExcludeProjConfig="Debug"/>
+    <File Name="bddlib.c" ExcludeProjConfig="Debug"/>
+    <File Name="bddlib_pointers.c" ExcludeProjConfig="Debug"/>
+    <File Name="bddlib_pointers.h" ExcludeProjConfig="Debug"/>
     <File Name="bdd2.h"/>
     <File Name="bdd2.c"/>
   </VirtualDirectory>

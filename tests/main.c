@@ -176,7 +176,7 @@ int main(int argc, char **argv)
 	make_dot(Result,"xor6-merged.dot");
 	KnuthR(Result,2);
 	
-	meld(bdd3,AND,bdd,bdd2);
+	//meld(bdd3,AND,bdd,bdd2);
 /*	printf("B(f): %d\n",get_bdd_count(bdd));
 	printf("B(g): %d\n",get_bdd_count(bdd2));
 	printf("B(merge): %d\n",get_bdd_count(bdd3));

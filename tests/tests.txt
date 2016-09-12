@@ -1,1 +1,1 @@
-./Debug/main.c.o ./Debug/bddlib.c.o ./Debug/bddlib_pointers.c.o
+./Debug/main.c.o ./Debug/bdd2.c.o

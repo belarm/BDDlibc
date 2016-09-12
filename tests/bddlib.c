@@ -150,6 +150,14 @@ union packed_op {
 	unsigned int all;
 };
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~
+//TODO:
+//Replace with 16 pointers to inline functions and check assembler output
+//...just to see what happens.
+//inlining will likely not work in most cases, but the function stacks may be interesting
+//Also: Generate executable from BDD and static functions?
+//~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 bool bdd_op(enum BOOL_OP op, bool a, bool b){
 	switch (op) {
 		case FALSE:				//0000
@@ -204,6 +212,9 @@ int meld(BDD *target, enum BOOL_OP op, BDD *f, BDD *g) {
 	return _meld(target,op,get_node(f,f->count-1),get_node(g,g->count-1));
 }
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//Or, we can enforce the constraints as the DAG is built, like sane people.
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 int KnuthR(BDD *dag, int root) {
 	int next;
 	//~ int counter = 0;
