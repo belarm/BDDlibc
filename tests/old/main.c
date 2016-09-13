@@ -78,23 +78,23 @@ int main(int argc, char **argv)
 	new_bdd(&Result,2);
 	new_bdd(&fig2,3);
 	
-	add_to_bdd(voxel,7,1,0);
-	add_to_bdd(voxel,6,2,0);
-	add_to_bdd(voxel,5,3,0);
+	add_to_bdd(voxel,8,1,0);
+	add_to_bdd(voxel,7,2,0);
+	add_to_bdd(voxel,6,3,0);
 	//add_to_bdd(voxel,5,4,0);
-	add_to_bdd(voxel,3,4,0);
-	add_to_bdd(voxel,2,5,0);
-	add_to_bdd(voxel,1,6,0);
-	add_to_bdd(voxel,0,7,0);
+	add_to_bdd(voxel,4,4,0);
+	add_to_bdd(voxel,3,5,0);
+	add_to_bdd(voxel,2,6,0);
+	add_to_bdd(voxel,1,7,0);
 	
-	add_to_bdd(voxel2,7,1,0);
-	add_to_bdd(voxel2,6,2,0);
-	add_to_bdd(voxel2,5,3,0);
-	add_to_bdd(voxel2,4,4,0);
-	add_to_bdd(voxel2,3,5,0);
+	add_to_bdd(voxel2,8,1,0);
+	add_to_bdd(voxel2,7,2,0);
+	add_to_bdd(voxel2,6,3,0);
+	add_to_bdd(voxel2,5,4,0);
+	add_to_bdd(voxel2,4,5,0);
 	//add_to_bdd(voxel3,2,5,0);
-	add_to_bdd(voxel2,1,6,0);
-	add_to_bdd(voxel2,0,7,0);
+	add_to_bdd(voxel2,2,6,0);
+	add_to_bdd(voxel2,1,7,0);
 	
 	add_to_bdd(point,7,1,0);
 	add_to_bdd(point,7,0,1);

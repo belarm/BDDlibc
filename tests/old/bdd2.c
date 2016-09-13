@@ -5,8 +5,7 @@
 #define HASH_SIZE 24593
 #define _get_truth(X) ((X)->hi == (X)->base->I + sizeof(bdd_node)) //does ->hi point to T?
 #define _is_sink(X) ((X)->v == (X)->base->terms)
-//#define _is_sink(X) ((X) - (X)->base->I <= sizeof(bdd_node))
-#define idx(X) (((X) - (X)->base->I) / sizeof(bdd_node))
+
 struct bdd_node {
 	int v;
 	bdd_node *hi, *lo;
@@ -127,27 +126,20 @@ bdd_node get_node(bdd *base, int idx) {
 	return base->I[idx];
 }
 
-bdd_node *add_node_to_bdd(bdd *base, int v, bdd_node *lo, bdd_node *hi) {
-	printf("Adding %d?%p:%p\n",v,lo,hi);
-	fflush(stdout);
+int add_node_to_bdd(bdd *base, int v, bdd_node *lo, bdd_node *hi) {
 	bdd_node temp = {.v = v, .lo = lo, .hi = hi, .base = base, .aux = 0};
 	_unique_insert(&temp);
 	base->I[base->count] = temp;
-	return &base->I[base->count++];
-}
-
-/*bdd_node *_add_node_to_bdd(bdd *target, bdd_node *node) {
-	return &target->I[add_node_to_bdd(target, node->v, node->lo, node->hi)];
+	return base->count++;
 }
 
 bdd_node _add_to_bdd(bdd *base, bdd_node node) {
 	return base->I[add_node_to_bdd(base, node.v, node.lo, node.hi)];
-}*/
+}
 
 
 int add_to_bdd(bdd *base, int v, int lo_idx, int hi_idx) {
-	
-	bdd_node *lo = (bdd_node*)(base->I + lo_idx * sizeof(bdd_node));
+	bdd_node *lo = (bdd_node *)(base->I + lo_idx * sizeof(bdd_node));
 	bdd_node *hi = (bdd_node*)(base->I + hi_idx * sizeof(bdd_node));
 	
 	bdd_node temp = {.v = v, .lo = lo, .hi = hi, .base = base, .aux = 0};
@@ -164,82 +156,39 @@ void new_bdd(bdd **in, int terms)  {
 	ret->count = 0;
 	add_to_bdd(ret,terms,0,0);
 	add_to_bdd(ret,terms,1,1);
-	printf("Node 0: %s\n",_get_truth(&ret->I[0]) ? "true" : "false");
-	printf("Node 1: %s\n",_get_truth(&ret->I[1]) ? "true" : "false");
 	*in = ret;
 }
 
 int print_bdd(bdd *base) {
 	int i;
-	printf("%d/%d nodes, %d terms\n",base->count,base->capacity,base->terms);
 	for(i=0;i<base->count;i++) {
 		printf("%d\t%d?%ld:%ld\n",i,base->I[i].v,(base->I[i].lo-base->I)/sizeof(bdd_node),(base->I[i].hi-base->I)/sizeof(bdd_node));
-		//printf("%d\t%d?%ld:%ld\n",i,base->I[i].v,idx(base->I[i].lo),idx(base->I[i].hi));
 	}
 	return i;
 }
 
-bdd_node *_meld (bdd *target, enum BOOL_OP op, bdd_node *f, bdd_node *g) {
-	printf("%p:%p\n",f,f->base);
-	printf("%p:%p\n",g,g->base);
-
-	printf("Checking if 1:%ld or 2:%ld are sinks\n",(f-f->base->I),(g-g->base->I));
-	if(_is_sink(f) && _is_sink(g)) {
-		printf("Sinks detected, performing op:\t");
-		fflush(stdout);
-		/*return add_node_to_bdd(target,f->v,)*/
-		printf("returning %s\n",bdd_op(op,_get_truth(f),_get_truth(g)) ? "true" : "false");
-		//printf("Var of return: %d\n",target->I
-		return &target->I[bdd_op(op,_get_truth(f),_get_truth(g))];
-	} else {
-		printf("is_sink(f): %s\nis_sink(g): %s\n",_is_sink(f) ? "true" : "false", _is_sink(g) ? "true" : "false");
-	}
-	if(f->v == g->v) {
-		printf("f->v == g->v\n");
-		fflush(stdout);
-		return add_node_to_bdd(target,f->v,_meld(target,op,f->lo,g->lo),_meld(target,op,f->hi,g->hi));
-	} else if (f->v < g->v ){
-		printf("f->v  < g->v\n");
-		fflush(stdout);
-		return add_node_to_bdd(target,f->v,_meld(target,op,f->lo,g),_meld(target,op,f->hi,g));
-	} else {
-		printf("f->v  > g->v\n");
-		fflush(stdout);
-		return add_node_to_bdd(target,g->v,_meld(target,op,f,g->lo),_meld(target,op,f,g->hi));
-	}
-}
-
-/*int _old_meld (bdd *target, enum BOOL_OP op, bdd_node *f, bdd_node *g) {
-	printf("%d?%p:%p | %d",f->v,f->lo,f->hi,f->aux);
-	printf("%d?%p:%p | %d",g->v,g->lo,g->hi,g->aux);
-
+int _meld (bdd *target, enum BOOL_OP op, bdd_node *f, bdd_node *g) {
 	printf("Checking if 1:%ld or 2:%ld are sinks\n",(f-f->base->I)/sizeof(bdd_node),(g-g->base->I)/sizeof(bdd_node));
 	fflush(stdout);
 	if(_is_sink(f) && _is_sink(g)) {
 		return bdd_op(op, _get_truth(f), _get_truth(g));
 	}
 	if(f->v == g->v) {
-		printf("branch 1\n");
-		fflush(stdout);
-		return add_node_to_bdd(target,f->v,_meld(target,op,f->lo,g->lo),_meld(target,op,f->hi,g->hi));
+		return add_to_bdd(target,f->v,_meld(target,op,f->lo,g->lo),_meld(target,op,f->hi,g->hi));
 	} else if (f->v < g->v ){
-		printf("branch 2\n");
-		fflush(stdout);
-		return add_node_to_bdd(target,f->v,_meld(target,op,f->lo,g),_meld(target,op,f->hi,g));
+		return add_to_bdd(target,f->v,_meld(target,op,f->lo,g),_meld(target,op,f->hi,g));
 	} else {
-		printf("branch 3\n");
-		fflush(stdout);
-		return add_node_to_bdd(target,g->v,_meld(target,op,f,g->lo),_meld(target,op,f,g->hi));
+		return add_to_bdd(target,g->v,_meld(target,op,f,g->lo),_meld(target,op,f,g->hi));
 	}
-}*/
+}
 
-void meld(bdd *target, enum BOOL_OP op, bdd *f, bdd *g) {
+int meld(bdd *target, enum BOOL_OP op, bdd *f, bdd *g) {
 	printf("Combining the following BDDS:\n");
 	printf("==================BDD 1:\n");
 	print_bdd(f);
 	printf("==================BDD 2:\n");
 	print_bdd(g);
-	_meld(target,op,&f->I[f->count-1],&g->I[g->count-1]);
+	return _meld(target,op,&f->I[f->count-1],&g->I[g->count-1]);
 }
 
 //Utility functions

@@ -43,5 +43,5 @@ void new_bdd(bdd **in, int terms);
 int get_bdd_count(bdd *base);
 int make_dot(bdd *base, char *path);
 int make_simple_dot(bdd *base, char *path);
-void meld(bdd *target, enum BOOL_OP op, bdd *f, bdd *g);
+int meld(bdd *target, enum BOOL_OP op, bdd *f, bdd *g);
 #endif
